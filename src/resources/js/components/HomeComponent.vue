@@ -40,10 +40,12 @@
 
             <!-- Reminders List -->
             <div v-else-if="!loading && reminders.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="reminder in reminders" :key="reminder.id" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                <div v-for="(reminder, index) in reminders" :key="reminder.id || index" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
                     <h3 class="text-xl font-semibold text-gray-800 dark:text-white">{{ reminder.title }}</h3>
                     <p class="mt-2 text-gray-600 dark:text-gray-400">{{ reminder.description }}</p>
-                    <p class="mt-4 text-sm text-gray-500 dark:text-gray-300">Due: {{ formatDate(reminder.due_date) }}</p>
+
+                    <p class="mt-10 text-sm text-gray-500 dark:text-gray-300"><b>Event is:</b> {{ formatDate(reminder.event_at) }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-300"><b>Reminder is:</b> {{ formatDate(reminder.remind_at) }}</p>
                 </div>
             </div>
         </main>
@@ -69,8 +71,12 @@
                         <textarea id="description" v-model="form.description" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white" rows="4"></textarea>
                     </div>
                     <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 mb-2" for="due_date">Due Date</label>
-                        <input type="date" id="due_date" v-model="form.due_date" :min="todayDate" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white" required>
+                        <label class="block text-gray-700 dark:text-gray-300 mb-2" for="event_at">When is the Event?</label>
+                        <input type="datetime-local" id="event_at" v-model="form.event_at" :min="minDateTime" step="1" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 mb-2" for="remind_at">When to Remind You?</label>
+                        <input type="datetime-local" id="remind_at" v-model="form.remind_at" :min="minDateTime" step="1" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white" required>
                     </div>
                     <div class="flex justify-end">
                         <button type="button" @click="closeModal" class="px-4 py-2 mr-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
@@ -100,18 +106,22 @@ export default {
             form: {
                 title: '',
                 description: '',
-                due_date: ''
+                remind_at: '',
+                event_at: '',
             }
         };
     },
     computed: {
-        // Computes today's date in YYYY-MM-DD format for the min attribute of the due date input
-        todayDate() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+        // Minimum date-time for the datetime-local input (current date and time)
+        minDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
         }
     },
     created() {
@@ -184,9 +194,18 @@ export default {
                 this.$router.push({ name: 'login' });
             }
         },
-        formatDate(dateStr) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(dateStr).toLocaleDateString(undefined, options);
+        formatDate(timestamp) {
+            // Convert Unix timestamp to milliseconds
+            const date = new Date(timestamp * 1000);
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            return date.toLocaleDateString(undefined, options);
         },
         // Modal control methods
         openModal() {
@@ -199,25 +218,50 @@ export default {
         // Form submission
         async submitForm() {
             // Validate form inputs
-            if (!this.form.title || !this.form.due_date) {
+            if (!this.form.title || !this.form.remind_at || !this.form.event_at) {
                 this.error = 'Please fill in all fields.';
                 return;
             }
 
+            // Convert remind_at and event_at to Unix timestamp
+            const dateTimeRemindAt = new Date(this.form.remind_at);
+            const unixTimestampRemindAt = Math.floor(dateTimeRemindAt.getTime() / 1000);
+            const dateTimeEventAt = new Date(this.form.event_at);
+            const unixTimestampEventAt = Math.floor(dateTimeEventAt.getTime() / 1000);
+
+            const formData = {
+                ...this.form,
+                remind_at: unixTimestampRemindAt,
+                event_at: unixTimestampEventAt,
+            };
+
             try {
                 // Send form data to the backend API
-                const response = await this.$api.post('/api/reminders', this.form);
+                const response = await this.$api.post('/api/reminders', formData);
 
                 if (response.data.ok) {
                     // Successfully added the reminder
-                    this.reminders.push(response.data.data.reminder);
+                    const newReminder = response.data.data;
+                    this.reminders.push(newReminder);
                     this.closeModal();
                 } else {
                     this.error = response.data.msg || 'Failed to add reminder.';
                 }
             } catch (error) {
                 if (error.response) {
-                    this.error = error.response.data.msg || 'Failed to add reminder.';
+                    if (error.response.status === 401) {
+                        // Handle unauthorized error
+                        this.error = 'Your session has expired. Please log in again.';
+                        // Redirect to log in
+                        this.$router.push({ name: 'login' });
+                    } else if (error.response.status === 422) {
+                        // Handle validation errors
+                        const errors = error.response.data.errors;
+                        // Display validation errors
+                        this.error = Object.values(errors).flat().join(' ');
+                    } else {
+                        this.error = error.response.data.msg || 'Failed to add reminder.';
+                    }
                 } else if (error.request) {
                     this.error = 'No response from the server. Please try again later.';
                 } else {
@@ -230,7 +274,8 @@ export default {
         resetForm() {
             this.form.title = '';
             this.form.description = '';
-            this.form.due_date = '';
+            this.form.remind_at = '';
+            this.form.event_at = '';
             this.error = '';
         }
     }
