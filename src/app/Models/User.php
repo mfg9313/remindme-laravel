@@ -47,4 +47,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Reminder::class);
     }
+
+    // Relationship with refresh tokens
+    public function refreshTokens()
+    {
+        return $this->hasMany(RefreshToken::class);
+    }
 }
