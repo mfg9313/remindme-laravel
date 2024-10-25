@@ -1,4 +1,5 @@
 import axios from 'axios';
+import router from '../router';
 
 // Create an Axios instance
 const apiClient = axios.create({
@@ -6,8 +7,25 @@ const apiClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-    }
+    },
+    withCredentials: true,
 });
+
+// Flag to prevent multiple refresh attempts
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+
+    failedQueue = [];
+};
 
 apiClient.interceptors.request.use(
     config => {
@@ -27,7 +45,20 @@ apiClient.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                return new Promise(function(resolve, reject) {
+                    failedQueue.push({ resolve, reject });
+                }).then(token => {
+                    originalRequest.headers['Authorization'] = 'Bearer ' + token;
+                    return apiClient(originalRequest);
+                }).catch(err => {
+                    return Promise.reject(err);
+                });
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
+
             const refreshToken = localStorage.getItem('refresh_token');
 
             if (refreshToken) {
@@ -43,22 +74,26 @@ apiClient.interceptors.response.use(
                         localStorage.setItem('access_token', newAccessToken);
                         apiClient.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`;
                         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                        processQueue(null, newAccessToken);
                         return apiClient(originalRequest);
                     }
                 } catch (refreshError) {
-                    console.error('Token refresh failed:', refreshError);
                     // Redirect to log in if refresh fails
+                    processQueue(refreshError, null);
                     localStorage.removeItem('access_token');
                     localStorage.removeItem('refresh_token');
                     localStorage.removeItem('user');
-                    window.location.href = '/login';
+                    router.push({ name: 'login' });
+                    return Promise.reject(refreshError);
+                } finally {
+                    isRefreshing = false;
                 }
             } else {
                 // No refresh token available
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
                 localStorage.removeItem('user');
-                window.location.href = '/login';
+                router.push({ name: 'login' });
             }
         }
 

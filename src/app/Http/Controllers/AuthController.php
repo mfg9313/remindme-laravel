@@ -7,6 +7,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -100,12 +101,20 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Revoke the current access token
-        $request->user()->currentAccessToken()->delete();
+        try {
+            // Revoke the current access token
+            $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'ok' => true,
-            'msg' => 'Logged out successfully.',
-        ]);
+            return response()->json([
+                'ok' => true,
+                'msg' => 'Logged out successfully.',
+            ]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'ok' => false,
+                'msg' => 'An error occurred during logout. Please try again.',
+            ], 500);
+        }
     }
 }

@@ -97,8 +97,12 @@ export default {
                 }
             } catch (error) {
                 if (error.response) {
-                    // Server responded with a status other than 2xx
-                    this.error = error.response.data.msg || 'Login failed. Please check your credentials.';
+                    if (error.response.status === 429) {
+                        this.error = 'Too many login attempts. Please try again later.';
+                    } else {
+                        // Server responded with a status other than 2xx
+                        this.error = error.response.data.msg || 'Login failed. Please check your credentials.';
+                    }
                 } else if (error.request) {
                     // Request was made but no response received
                     this.error = 'No response from the server. Please try again later.';
