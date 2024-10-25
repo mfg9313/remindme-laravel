@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Reminder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ReminderController extends Controller
 {
@@ -14,7 +15,7 @@ class ReminderController extends Controller
 
         $reminders = $request->user()->reminders()
             ->where('reminded_at', '>=', now()->timestamp)
-            ->orderBy('remind_at', 'desc')
+            ->orderBy('remind_at', 'asc')
             ->limit($limit)
             ->get(['id', 'title', 'description', 'remind_at', 'event_at']);
 
@@ -25,7 +26,7 @@ class ReminderController extends Controller
                     return [
                         'id' => $reminder->id,
                         'title' => $reminder->title,
-                        'description' => $reminder->description,
+                        'description' => Str::limit($reminder->description, 250, '...'),
                         'remind_at' => $reminder->remind_at,
                         'event_at' => $reminder->event_at,
                     ];
@@ -65,6 +66,13 @@ class ReminderController extends Controller
         $reminder = Reminder::where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
+
+        if (!$reminder) {
+            return response()->json([
+                'ok' => false,
+                'msg' => 'Reminder not found.',
+            ], 404);
+        }
 
         return response()->json([
             'ok' => true,
