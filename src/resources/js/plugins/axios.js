@@ -29,13 +29,17 @@ const processQueue = (error, token = null) => {
 
 apiClient.interceptors.request.use(
     config => {
-        const token = localStorage.getItem('access_token');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
+        if (!config.headers['Authorization']) {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                config.headers['Authorization'] = `Bearer ${token}`;
+            }
         }
         return config;
     },
-    error => Promise.reject(error)
+    error => {
+        return Promise.reject(error);
+    }
 );
 
 // Interceptors for handling responses globally
@@ -66,7 +70,8 @@ apiClient.interceptors.response.use(
                     const response = await apiClient.put('/api/session', {}, {
                         headers: {
                             'Authorization': `Bearer ${refreshToken}`
-                        }
+                        },
+                        skipAuthInterceptor: true
                     });
 
                     if (response.data.ok) {

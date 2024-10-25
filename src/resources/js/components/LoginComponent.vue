@@ -90,6 +90,9 @@ export default {
                     // Store user information
                     localStorage.setItem('user', JSON.stringify(user));
 
+                    // Update Axios defaults
+                    this.$api.defaults.headers['Authorization'] = `Bearer ${access_token}`;
+
                     // Redirect to the reminders home page
                     this.$router.push({name: 'home'});
                 } else {
