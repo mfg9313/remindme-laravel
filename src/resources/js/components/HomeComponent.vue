@@ -116,19 +116,19 @@
                         <form @submit.prevent="isEditing ? updateReminder() : submitForm()">
                             <div class="mb-4">
                                 <label class="block text-gray-700 dark:text-gray-300 mb-2" for="title">Title</label>
-                                <input type="text" id="title" v-model="form.title" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white" required>
+                                <input type="text" id="title" v-model="form.title" :required="!isEditing"  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
                             </div>
                             <div class="mb-4">
                                 <label class="block text-gray-700 dark:text-gray-300 mb-2" for="description">Description</label>
-                                <textarea id="description" v-model="form.description" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white" rows="4"></textarea>
+                                <textarea id="description" v-model="form.description" :required="!isEditing"  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white" rows="4"></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="block text-gray-700 dark:text-gray-300 mb-2" for="event_at">When is the Event?</label>
-                                <input type="datetime-local" id="event_at" v-model="form.event_at" :min="minDateTime" step="1" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white" required>
+                                <input type="datetime-local" id="event_at" v-model="form.event_at" :min="minDateTime" step="1" :required="!isEditing"  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
                             </div>
                             <div class="mb-4">
                                 <label class="block text-gray-700 dark:text-gray-300 mb-2" for="remind_at">When to Remind You?</label>
-                                <input type="datetime-local" id="remind_at" v-model="form.remind_at" :min="minDateTime" step="1" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white" required>
+                                <input type="datetime-local" id="remind_at" v-model="form.remind_at" :min="minDateTime" step="1" :required="!isEditing"  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white">
                             </div>
                             <div class="flex justify-end">
                                 <button type="button" @click="closeModal" class="px-4 py-2 mr-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
@@ -329,7 +329,7 @@ export default {
             if (this.isEditing) return;
 
             // Validate form inputs
-            if (!this.form.title || !this.form.remind_at || !this.form.event_at) {
+            if (!this.form.title || !this.form.title || !this.form.remind_at || !this.form.event_at) {
                 this.error = 'Please fill in all fields.';
                 return;
             }
@@ -415,24 +415,23 @@ export default {
         },
         // Update reminder
         async updateReminder() {
-            // Validate form inputs
-            if (!this.form.title || !this.form.remind_at || !this.form.event_at) {
-                this.error = 'Please fill in all fields.';
-                return;
-            }
+            this.error = '';
+
+            // Only include fields that provided
+            const formData = {};
+
+            if (this.form.title) formData.title = this.form.title;
+            if (this.form.description) formData.description = this.form.description;
 
             // Convert dates to Unix timestamps
-            const dateTimeRemindAt = new Date(this.form.remind_at);
-            const unixTimestampRemindAt = Math.floor(dateTimeRemindAt.getTime() / 1000);
-            const dateTimeEventAt = new Date(this.form.event_at);
-            const unixTimestampEventAt = Math.floor(dateTimeEventAt.getTime() / 1000);
-
-            const formData = {
-                title: this.form.title,
-                description: this.form.description,
-                remind_at: unixTimestampRemindAt,
-                event_at: unixTimestampEventAt,
-            };
+            if (this.form.remind_at) {
+                const dateTimeRemindAt = new Date(this.form.remind_at);
+                formData.remind_at = Math.floor(dateTimeRemindAt.getTime() / 1000);
+            }
+            if (this.form.event_at) {
+                const dateTimeEventAt = new Date(this.form.event_at);
+                formData.event_at = Math.floor(dateTimeEventAt.getTime() / 1000);
+            }
 
             try {
                 const response = await this.$api.put(`/api/reminders/${this.currentReminderId}`, formData);

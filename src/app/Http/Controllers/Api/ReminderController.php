@@ -40,7 +40,7 @@ class ReminderController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string',
-            'description' => 'nullable|string',
+            'description' => 'required|nullable|string',
             'remind_at' => 'required|integer',
             'event_at' => 'required|integer',
         ]);
