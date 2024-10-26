@@ -34,7 +34,7 @@ class SendReminderNotifications extends Command
         $now = Carbon::now();
 
         // Fetch reminders that are due, batching in the case of many reminders to max memory usage
-        Reminder::where('event_at', '<=', $now->timestamp)
+        Reminder::where('remind_at', '<=', $now->timestamp)
             ->where('sent', false)
             ->with('user')
             ->chunk(100, function ($reminders) {

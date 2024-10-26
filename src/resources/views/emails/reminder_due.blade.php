@@ -26,6 +26,9 @@
                             </p>
                         @endif
                         <p style="font-size:16px; line-height:1.5;">
+                            <strong>Event At:</strong> {{ $eventAt }}
+                        </p>
+                        <p style="font-size:16px; line-height:1.5;">
                             <strong>Remind At:</strong> {{ $remindAt }}
                         </p>
                     </td>
