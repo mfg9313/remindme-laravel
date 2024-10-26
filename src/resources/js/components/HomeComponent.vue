@@ -241,11 +241,8 @@ export default {
             } catch (error) {
                 if (error.response) {
                     if (error.response.status === 401) {
-                        // Token refresh failed or user is unauthorized
-                        localStorage.removeItem('access_token');
-                        localStorage.removeItem('refresh_token');
-                        localStorage.removeItem('user');
-                        this.$router.push({ name: 'login' });
+                        // Token refresh failed or user is unauthorized, remove token and user data
+                        this.error = 'Session expired. Redirecting to login.';
                     } else {
                         this.error = error.response.data.msg || 'Failed to fetch reminders.';
                     }
@@ -256,7 +253,6 @@ export default {
                     // Something else caused the error
                     this.error = 'An unexpected error occurred.';
                 }
-                console.error('Fetch Reminders Error:', error);
             } finally {
                 this.loading = false;
             }
@@ -275,7 +271,6 @@ export default {
                 // Redirect to the login page
                 this.$router.push({ name: 'login' });
             } catch (error) {
-                console.error('Logout Error:', error);
                 // Even if the API call fails, clear local tokens and redirect
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
@@ -359,7 +354,7 @@ export default {
                     // Successfully added the reminder
                     const newReminder = response.data.data;
                     newReminder.description = this.descriptionLimit(newReminder.description, 250);
-                    
+
                     this.reminders.push(newReminder);
                     this.closeModal();
                 } else {

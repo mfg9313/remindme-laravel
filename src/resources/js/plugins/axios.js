@@ -48,6 +48,11 @@ apiClient.interceptors.response.use(
     async error => {
         const originalRequest = error.config;
 
+        // Checking for skipAuthInterceptor here to prevent it from getting stuck
+        if (originalRequest && originalRequest.skipAuthInterceptor) {
+            return Promise.reject(error);
+        }
+
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
             if (isRefreshing) {
                 return new Promise(function(resolve, reject) {
