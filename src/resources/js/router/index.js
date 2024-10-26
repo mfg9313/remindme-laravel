@@ -15,7 +15,7 @@ const routes = [
         component: HomeComponent,
         meta: { requiresAuth: true },
     },
-    { path: '*', name: 'NotFound', component: NotFoundComponent },
+    { path: '*', name: 'notfound', component: NotFoundComponent },
 ];
 
 const router = new Router({
