@@ -11,35 +11,15 @@
                     </p>
                     <form class="space-y-4 md:space-y-6" @submit.prevent="login">
                         <div>
-                            <input
-                                type="email"
-                                v-model="email"
-                                name="email"
-                                id="email"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Email Address"
-                                required
-                            >
+                            <input type="email" v-model="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Email Address" required>
                         </div>
                         <div>
-                            <input
-                                type="password"
-                                v-model="password"
-                                name="password"
-                                id="password"
-                                placeholder="Password"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                required
-                            >
+                            <input type="password" v-model="password" name="password" id="password" placeholder="Password" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                         </div>
                         <div v-if="error" class="text-red-500 text-sm">
                             {{ error }}
                         </div>
-                        <button
-                            type="submit"
-                            :disabled="loading"
-                            class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                        >
+                        <button type="submit" :disabled="loading" class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                             <span v-if="loading">Signing in...</span>
                             <span v-else>Sign in</span>
                         </button>
