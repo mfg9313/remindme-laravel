@@ -14,7 +14,7 @@ class ReminderController extends Controller
         $limit = $request->query('limit', 10);
 
         $reminders = $request->user()->reminders()
-            ->where('reminded_at', '>=', now()->timestamp)
+            ->where('remind_at', '>=', now()->timestamp)
             ->orderBy('remind_at', 'asc')
             ->limit($limit)
             ->get(['id', 'title', 'description', 'remind_at', 'event_at']);
