@@ -66,7 +66,7 @@
                         </div>
 
                         <h3 class="text-xl font-semibold text-gray-800 dark:text-white">{{ reminder.title }}</h3>
-                        <p class="mt-2 text-gray-600 dark:text-gray-400">{{ reminder.description }}</p>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">{{ descriptionLimit(reminder.description, 250) }}</p>
 
                         <p class="mt-10 text-sm text-gray-500 dark:text-gray-300"><b>Event is:</b> {{ formatDate(reminder.event_at) }}</p>
                         <p class="text-sm text-gray-500 dark:text-gray-300"><b>Reminder is:</b> {{ formatDate(reminder.remind_at) }}</p>
@@ -89,13 +89,13 @@
                             <p class="text-2xl mb-4 text-gray-800 dark:text-white">{{ currentReminder.title }}</p>
                         </div>
                         <div class="mb-4">
-                            <p class="mb-4 text-gray-800 dark:text-gray-400">Description: {{ currentReminder.description }}</p>
+                            <p class="mb-4 text-gray-800 dark:text-gray-400">{{ currentReminder.description }}</p>
+                        </div>
+                        <div class="mt-10">
+                            <p class="font-bold tracking-tight text-gray-900 dark:text-gray-200">Event is: {{ formatDate(currentReminder.event_at) }}</p>
                         </div>
                         <div class="mb-4">
-                            <p class="mb-4 text-gray-800 dark:text-gray-400">Event is: {{ formatDate(currentReminder.event_at) }}</p>
-                        </div>
-                        <div class="mb-4">
-                            <p class="mb-4 text-gray-800 dark:text-gray-400">Reminder is: {{ formatDate(currentReminder.remind_at) }}</p>
+                            <p class="mb-4 font-bold tracking-tight text-gray-900 dark:text-gray-200">Reminder is: {{ formatDate(currentReminder.remind_at) }}</p>
                         </div>
                         <div class="flex justify-end">
                             <button type="button" @click="closeViewModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
@@ -225,6 +225,7 @@ export default {
         this.fetchReminders();
     },
     methods: {
+        // Getting the index endpoint for reminders
         async fetchReminders() {
             this.loading = true;
             this.error = '';
@@ -260,6 +261,7 @@ export default {
                 this.loading = false;
             }
         },
+        // Clearing tokens on logout
         async logout() {
             try {
                 // Revoke the access token on the backend
@@ -281,6 +283,8 @@ export default {
                 this.$router.push({ name: 'login' });
             }
         },
+
+        // Converting unix timestamp to make it compatible with input
         formatDate(timestamp) {
             // Convert Unix timestamp to milliseconds
             const date = new Date(timestamp * 1000);
@@ -294,6 +298,24 @@ export default {
             };
             return date.toLocaleDateString(undefined, options);
         },
+        // Converting the timestamp unix code to input date time
+        convertTimestampToInput(timestamp) {
+            const date = new Date(timestamp * 1000);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        },
+        // Cleaning up description to have 250 char, except on show endpoint / view modal
+        descriptionLimit(text, limit) {
+            if (text.length > limit) {
+                return text.substring(0, limit) + '...';
+            }
+            return text;
+        },
+
         // Open Add Modal
         openModal() {
             this.showModal = true;
@@ -305,6 +327,7 @@ export default {
             this.currentReminderId = null;
             this.resetForm();
         },
+
         // Form submission
         async submitForm() {
             // Proceed only if not editing
@@ -335,6 +358,8 @@ export default {
                 if (response.data.ok) {
                     // Successfully added the reminder
                     const newReminder = response.data.data;
+                    newReminder.description = this.descriptionLimit(newReminder.description, 250);
+                    
                     this.reminders.push(newReminder);
                     this.closeModal();
                 } else {
@@ -371,6 +396,7 @@ export default {
             this.form.event_at = '';
             this.error = '';
         },
+
         // Open Edit Modal
         async openEditModal(reminder) {
             try {
@@ -420,7 +446,10 @@ export default {
                     // Update the reminder in the list
                     const index = this.reminders.findIndex(r => r.id === this.currentReminderId);
                     if (index !== -1) {
-                        this.$set(this.reminders, index, response.data.data);
+                        const updateReminder = { ...response.data.data };
+                        updateReminder.description = this.descriptionLimit(updateReminder.description, 250);
+
+                        this.$set(this.reminders, index, updateReminder);
                     }
                     this.closeModal();
                 } else {
@@ -445,6 +474,7 @@ export default {
                 console.error('Error:', error);
             }
         },
+
         // Open View Modal
         async openViewModal(reminder) {
             try {
@@ -465,16 +495,8 @@ export default {
             this.showViewModal = false;
             this.currentReminder = {};
         },
-        // Converting the timestamp unix code to input date time
-        convertTimestampToInput(timestamp) {
-            const date = new Date(timestamp * 1000);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${year}-${month}-${day}T${hours}:${minutes}`;
-        },
+
+
         // Open delete confirmation
         openDeleteModal(id) {
             this.showDeleteModal = true;
@@ -526,6 +548,8 @@ export default {
                 this.deleting = false;
             }
         },
+
+
     }
 }
 </script>
