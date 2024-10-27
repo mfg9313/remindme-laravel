@@ -42,4 +42,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function reminders()
+    {
+        return $this->hasMany(Reminder::class);
+    }
+
+    // Relationship with refresh tokens
+    public function refreshTokens()
+    {
+        return $this->hasMany(RefreshToken::class);
+    }
 }

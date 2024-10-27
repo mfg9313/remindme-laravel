@@ -1,1 +1,1 @@
-*.sqlite*
+# Include all sqlite files
