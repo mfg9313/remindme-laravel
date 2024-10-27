@@ -1,66 +1,126 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# RemindMe - WeThrive Challenge by Matthew Gordon
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Welcome to the **RemindMe** application, a simple web app that allows users to create reminders for their schedules. It sends email notifications to users when a reminder is due.
 
-## About Laravel
+## Table of Contents
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Installation and Setup](#installation-and-setup)
+    - [Prerequisites](#prerequisites)
+    - [Cloning the Repository](#cloning-the-repository)
+    - [Setting Up the Environment](#setting-up-the-environment)
+    - [Database Setup](#database-setup)
+    - [Scheduling Tasks](#scheduling-tasks)
+- [Running the Application](#running-the-application)
+- [Testing](#testing)
+- [Usage](#usage)
+- [Acknowledgements](#acknowledgements)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **User Authentication**: Secure login and logout functionality with token-based authentication.
+- **Reminder Management**: Create, view, edit, and delete reminders.
+- **Email Notifications**: Receive email notifications when a reminder is due.
+- **Token Refresh Mechanism**: Short-lived access tokens with refresh tokens to maintain session security.
+- **Automated Testing**: Comprehensive unit and feature tests for backend components.
+- **Responsive Frontend**: User-friendly interface built with [Vue.js](https://vuejs.org/) and [Tailwind CSS](https://tailwindcss.com/).
 
-## Learning Laravel
+## Technology Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Backend**: Laravel Framework
+- **Frontend**: Vue.js
+- **Database**: SQLite
+- **Authentication**: Laravel Sanctum
+- **Email Service**: Laravel Mailpit
+- **Testing**: PHPUnit for backend tests
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Installation and Setup
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Prerequisites
 
-## Laravel Sponsors
+Ensure you have the following installed on your machine:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- [PHP](https://www.php.net/downloads) >= 8.1
+- [Composer](https://getcomposer.org/download/)
+- [Node.js](https://nodejs.org/en/download/) & [NPM](https://www.npmjs.com/get-npm)
+- [Git](https://git-scm.com/downloads)
 
-### Premium Partners
+### Cloning the Repository
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```bash
+git clone https://github.com/mfg9313/remindme-laravel.git
+cd remindme-laravel
+cd src
+```
 
-## Contributing
+### Setting Up the Environment
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Code of Conduct
+### Database Setup
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Database was included in `/src/database/database.sqlite`
+However, if there are any issues you can run these commands for quick and easy setup
 
-## Security Vulnerabilities
+```bash
+touch database/database.sqlite
+php artisan migrate
+php artisan db:seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Scheduling Tasks
 
-## License
+In `app/Console/Kernel.php` there is a command for running the schedule reminder emails that runs every minute. 
+If you run `php artisan schedule:work` this should allow you to run the scheduled task. 
+Also, please note that `mailpit` needs to be running.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Testing without Scheduling
+
+An alternative way to test without running scheduling is to run the command `php artisan reminders:send-reminder-notifications`.
+Please note that `mailpit` needs to be running and that task need have `remind_at` in the past in order for emails to process.
+
+## Running the Application
+
+Run the below commands, the app should be accessible at: `http://localhost:8000`
+
+```bash
+composer install
+npm install
+npm run dev
+php artisan serve
+```
+
+## Testing
+
+For running all test: 
+```bash
+php artisan test
+```
+
+You can also run the test suites by unit and feature:
+```bash
+php artisan test --testsuite=Unit
+php artisan test --testsuite=Feature
+```
+
+## Usage
+
+Please open your browser and go to 'http://localhost:8000'
+There will be a login link in the upper right hand corner, or you can go to 'http://localhost:8000/login'
+
+Please use the specified user accounts:
+`alice@mail.com`
+`123456`
+
+Or you can use:
+`bob@mail.com`
+`123456`
+
+## Acknowledgements
+
+Thank you so much for the opportunity, I greatly appreciate it. 
+If there is anything you need or if you have any questions please feel free to contact me.
