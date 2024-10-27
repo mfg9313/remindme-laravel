@@ -58,7 +58,6 @@ cd src
 
 ```bash
 cp .env.example .env
-php artisan key:generate
 ```
 
 ### Database Setup
@@ -89,6 +88,7 @@ Run the below commands, the app should be accessible at: `http://localhost:8000`
 
 ```bash
 composer install
+php artisan key:generate
 npm install
 npm run dev
 php artisan serve
@@ -116,7 +116,6 @@ Please use the following command to start the app:
 ```bash
 php artisan serve
 npm run dev
-npm run cypress:open
 ```
 #### Running Headless
 To run Cypress headless (if you don't have chrome), please run the following:
@@ -128,7 +127,7 @@ npx cypress run
 #### Running With Chrome
 If you have chrome and would like to run it in browser. Please run:
 ```bash
-npx cypress open
+npm run cypress:open
 ```
 Then click on 'E2E Testing'. 
 Click your preferred browser and then click the green button. 
