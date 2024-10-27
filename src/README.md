@@ -23,7 +23,7 @@ Welcome to the **RemindMe** application, a simple web app that allows users to c
 - **Reminder Management**: Create, view, edit, and delete reminders.
 - **Email Notifications**: Receive email notifications when a reminder is due.
 - **Token Refresh Mechanism**: Short-lived access tokens with refresh tokens to maintain session security.
-- **Automated Testing**: Comprehensive unit and feature tests for backend components.
+- **Automated Testing**: Comprehensive unit and feature tests for backend & frontend components.
 - **Responsive Frontend**: User-friendly interface built with [Vue.js](https://vuejs.org/) and [Tailwind CSS](https://tailwindcss.com/).
 
 ## Technology Stack
@@ -33,13 +33,13 @@ Welcome to the **RemindMe** application, a simple web app that allows users to c
 - **Database**: SQLite
 - **Authentication**: Laravel Sanctum
 - **Email Service**: Laravel Mailpit
-- **Testing**: PHPUnit for backend tests
+- **Testing**: PHPUnit for backend tests & Cypress for frontend tests
 
 ## Installation and Setup
 
 ### Prerequisites
 
-Ensure you have the following installed on your machine:
+Ensure you have the following installed:
 
 - [PHP](https://www.php.net/downloads) >= 8.1
 - [Composer](https://getcomposer.org/download/)
@@ -106,6 +106,35 @@ You can also run the test suites by unit and feature:
 php artisan test --testsuite=Unit
 php artisan test --testsuite=Feature
 ```
+
+### Front End Testing
+
+Cypress is used for front end testing. 
+Jest was considered but due to vulnerabilities I went with Cypress.
+
+Please use the following command to start the app:
+```bash
+php artisan serve
+npm run dev
+npm run cypress:open
+```
+#### Running Headless
+To run Cypress headless (if you don't have chrome), please run the following:
+
+```bash
+npx cypress run
+```
+
+#### Running With Chrome
+If you have chrome and would like to run it in browser. Please run:
+```bash
+npx cypress open
+```
+Then click on 'E2E Testing'. 
+Click your preferred browser and then click the green button. 
+Then you should see the test in the center. 
+If you click any of the test, it will run through the test cases. 
+
 
 ## Usage
 

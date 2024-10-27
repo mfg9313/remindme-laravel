@@ -75,7 +75,7 @@
             </main>
 
             <!-- Adding Reminder Button -->
-            <button @click="openModal" class="fixed bottom-6 right-6 bg-black hover:bg-gray-800 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg focus:outline-none" aria-label="Add Reminder">
+            <button @click="openModal" data-cy="add-reminder-button" class="fixed bottom-6 right-6 bg-black hover:bg-gray-800 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg focus:outline-none" aria-label="Add Reminder">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -83,7 +83,7 @@
 
             <!-- View Modal -->
             <transition name="modal">
-                <div v-if="showViewModal" @click="closeViewModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div v-if="showViewModal" @click="closeViewModal" id="view-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div @click.stop class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-11/12 max-w-md p-6 max-h-screen overflow-y-auto">
                         <div class="mb-4">
                             <p class="text-2xl mb-4 text-gray-800 dark:text-white">{{ currentReminder.title }}</p>

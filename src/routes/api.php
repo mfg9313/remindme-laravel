@@ -22,8 +22,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::put('/session', [AuthController::class, 'refresh']);
 
-// Rate throttling,only 5 login attempts per minute
-Route::middleware(['throttle:5,1'])->post('/session', [AuthController::class, 'login']);
+// Rate throttling,only 10 login attempts per minute
+Route::middleware(['throttle:10,1'])->post('/session', [AuthController::class, 'login']);
 
 
 Route::middleware(['auth:sanctum', 'token.expiry'])->group(function () {
